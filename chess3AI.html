@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://unpkg.com/chess.js@0.11.0/chess.js"></script>
+    <title>Chess AI</title>
+    <style>
+        #board {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="board"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const board = Chessboard("board", {
+            draggable: true,
+            position: "start",
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onMouseoverSquare: onMouseoverSquare,
+            onMouseoutSquare: onMouseoutSquare,
+        });
+
+        const game = new Chess();
+        let stockfish;
+
+        function onDragStart(source, piece, position, orientation) {
+            // Do not allow dragging of pieces if the game is over
+            if (game.game_over()) return false;
+
+            // Do not allow dragging of pieces that do not belong to the player
+            if (
+                (game.turn() === "w" && piece.search(/^b/) !== -1) ||
+                (game.turn() === "b" && piece.search(/^w/) !== -1)
+            ) {
+                return false;
+            }
+        }
+
+        function onDrop(source, target) {
+            // Move the piece
+            const move = game.move({
+                from: source,
+                to: target,
+                promotion: "q", // promote to queen by default
+            });
+
+            // Update the board
+            board.position(game.fen());
+
+            // If the move is invalid, undo it
+            if (move === null) {
+                return "snapback";
+            }
+
+            // Call Stockfish for the computer's move
+            getStockfishMove();
+        }
+
+        function getStockfishMove() {
+            const position = game.fen();
+            stockfish.postMessage("position fen " + position);
+            stockfish.postMessage("go depth 5"); // You can adjust the depth for stronger/weaker play
+        }
+
+        function makeBestMove(response) {
+            const bestMove = response.split(" ")[1];
+            game.ugly_move(bestMove);
+            board.position(game.fen());
+        }
+
+        function onMouseoverSquare(square, piece) {
+            const moves = game.legal_moves({ square: square, verbose: true });
+            highlightSquares(moves);
+        }
+
+        function onMouseoutSquare(square, piece) {
+            removeHighlights();
+        }
+
+        function highlightSquares(moves) {
+            const highlightedSquares = [];
+            for (const move of moves) {
+                highlightedSquares.push(move.to);
+            }
+            board.highlight(highlightedSquares);
+        }
+
+        function removeHighlights() {
+            board.removeHighlight();
+        }
+
+        // Initialize Stockfish
+        stockfish = new Worker("https://cdn.jsdelivr.net/gh/niklasf/Stockfish/src/stockfish.js");
+        stockfish.onmessage = function (event) {
+            if (event.data.startsWith("bestmove")) {
+                makeBestMove(event.data);
+            }
+        };
+
+        // Load the initial position
+        board.position(game.fen());
+    });
+</script>
+
+</body>
+</html>

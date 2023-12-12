@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+        }
+
+        .square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .light {
+            background-color: #f0d9b5;
+        }
+
+        .dark {
+            background-color: #b58863;
+        }
+
+        .piece {
+            font-family: 'Arial', sans-serif;
+            cursor: pointer;
+            user-select: none;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chessboard"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const chessboard = document.getElementById("chessboard");
+        const piecesOrder = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
+
+        // Create initial chessboard with pieces
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const square = document.createElement("div");
+                square.className = `square ${((row + col) % 2 === 0) ? 'light' : 'dark'}`;
+                const piece = document.createElement("div");
+                piece.className = "piece";
+                if (row === 0 || row === 7) {
+                    piece.textContent = piecesOrder[col];
+                } else if (row === 1 || row === 6) {
+                    piece.textContent = '♟';
+                }
+                square.appendChild(piece);
+                chessboard.appendChild(square);
+            }
+        }
+
+        let selectedPiece = null;
+
+        // Handle piece click event
+        chessboard.addEventListener("click", function (event) {
+            const clickedSquare = event.target.closest(".square");
+            if (!clickedSquare) return;
+
+            const clickedPiece = clickedSquare.querySelector(".piece");
+
+            if (selectedPiece) {
+                // Move the piece
+                clickedSquare.appendChild(selectedPiece);
+                selectedPiece = null;
+            } else if (clickedPiece) {
+                // Select the piece for potential movement
+                selectedPiece = clickedPiece;
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
