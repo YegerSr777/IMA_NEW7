@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(20, 20px);
+      grid-template-rows: repeat(20, 20px);
+    }
+
+    .cell {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .snake {
+      background-color: #333;
+    }
+
+    .food {
+      background-color: #f00;
+    }
+  </style>
+  <title>Snake Game</title>
+</head>
+<body>
+  <h1>Snake Game</h1>
+  <div id="game-board"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const board = document.getElementById('game-board');
+      const gridSize = 20;
+      const cells = [];
+      let snake = [{ x: 10, y: 10 }];
+      let food = { x: 5, y: 5 };
+      let direction = 'right';
+
+      function createBoard() {
+        for (let row = 0; row < gridSize; row++) {
+          for (let col = 0; col < gridSize; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cells.push(cell);
+            board.appendChild(cell);
+          }
+        }
+      }
+
+      function drawSnake() {
+        cells.forEach(cell => cell.classList.remove('snake'));
+
+        snake.forEach(segment => {
+          const index = segment.x + segment.y * gridSize;
+          cells[index].classList.add('snake');
+        });
+      }
+
+      function drawFood() {
+        const index = food.x + food.y * gridSize;
+        cells[index].classList.add('food');
+      }
+
+      function moveSnake() {
+        const head = Object.assign({}, snake[0]);
+
+        switch (direction) {
+          case 'up':
+            head.y = (head.y - 1 + gridSize) % gridSize;
+            break;
+          case 'down':
+            head.y = (head.y + 1) % gridSize;
+            break;
+          case 'left':
+            head.x = (head.x - 1 + gridSize) % gridSize;
+            break;
+          case 'right':
+            head.x = (head.x + 1) % gridSize;
+            break;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          generateFood();
+        } else {
+          snake.pop();
+        }
+      }
+
+      function generateFood() {
+        food = {
+          x: Math.floor(Math.random() * gridSize),
+          y: Math.floor(Math.random() * gridSize)
+        };
+
+        // Make sure food doesn't appear on the snake
+        while (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+          food = {
+            x: Math.floor(Math.random() * gridSize),
+            y: Math.floor(Math.random() * gridSize)
+          };
+        }
+      }
+
+      function checkCollision() {
+        const head = snake[0];
+        return snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y);
+      }
+
+      function handleKeyPress(event) {
+        switch (event.key) {
+          case 'ArrowUp':
+            direction = 'up';
+            break;
+          case 'ArrowDown':
+            direction = 'down';
+            break;
+          case 'ArrowLeft':
+            direction = 'left';
+            break;
+          case 'ArrowRight':
+            direction = 'right';
+            break;
+        }
+      }
+
+      function updateGame() {
+        moveSnake();
+        drawSnake();
+        drawFood();
+
+        if (checkCollision()) {
+          alert('Game over! Press OK to restart.');
+          snake = [{ x: 10, y: 10 }];
+          direction = 'right';
+        }
+
+        setTimeout(updateGame, 200);
+      }
+
+      createBoard();
+      updateGame();
+      drawSnake();
+      drawFood();
+      document.addEventListener('keydown', handleKeyPress);
+    });
+  </script>
+</body>
+</html>

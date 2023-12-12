@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #ball {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+        }
+    </style>
+    <title>Moving Ball</title>
+</head>
+<body>
+
+<div id="ball"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the ball element
+        const ball = document.getElementById("ball");
+
+        // Set initial position and speed
+        let x = 0;
+        let y = 0;
+        let speedX = 5;
+        let speedY = 3;
+
+        // Function to update the position of the ball
+        function updateBallPosition() {
+            // Update position
+            x += speedX;
+            y += speedY;
+
+            // Set new position
+            ball.style.left = x + "px";
+            ball.style.top = y + "px";
+
+            // Check boundaries and change direction if needed
+            if (x + ball.offsetWidth >= window.innerWidth || x <= 0) {
+                speedX = -speedX;
+            }
+
+            if (y + ball.offsetHeight >= window.innerHeight || y <= 0) {
+                speedY = -speedY;
+            }
+
+            // Repeat the update
+            requestAnimationFrame(updateBallPosition);
+        }
+
+        // Start the animation
+        updateBallPosition();
+    });
+</script>
+
+</body>
+</html>

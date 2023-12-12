@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #ball {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
+    </style>
+    <title>Clickable and Draggable Ball</title>
+</head>
+<body>
+
+<div id="ball"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ball = document.getElementById("ball");
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        // Function to handle mouse down event
+        function handleMouseDown(event) {
+            isDragging = true;
+
+            // Calculate the offset between the mouse position and the ball's position
+            offsetX = event.clientX - ball.getBoundingClientRect().left;
+            offsetY = event.clientY - ball.getBoundingClientRect().top;
+        }
+
+        // Function to handle mouse move event
+        function handleMouseMove(event) {
+            if (isDragging) {
+                // Move the ball based on mouse position
+                ball.style.left = event.clientX - offsetX + "px";
+                ball.style.top = event.clientY - offsetY + "px";
+            }
+        }
+
+        // Function to handle mouse up event
+        function handleMouseUp() {
+            isDragging = false;
+        }
+
+        // Add event listeners
+        ball.addEventListener("mousedown", handleMouseDown);
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    });
+</script>
+
+</body>
+</html>
